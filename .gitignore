@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Node
+node_modules/
+frontend/dist/
+frontend/test-results/
+frontend/playwright-report/
+
+# Local config and OS files
+.env
+.DS_Store
+.claude/
+_local/
+
+# TypeScript incremental build cache
+*.tsbuildinfo
+# recorded for the static demo at deploy time (python -m app.ops.record_demo)
+frontend/public/demo/
