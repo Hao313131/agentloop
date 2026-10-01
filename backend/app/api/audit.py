@@ -1,0 +1,41 @@
+from __future__ import annotations
+
+from fastapi import APIRouter, Depends, Query
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from ..audit import ACTIONS, verify
+from ..db import get_db
+from ..models import AuditLog, User
+from ..security import Principal, require_admin
+from .common import iso
+
+router = APIRouter(prefix="/api/audit", tags=["audit"])
+
+
+@router.get("/verify")
+def verify_audit(principal: Principal = Depends(require_admin), db: Session = Depends(get_db)) -> dict:
+    """Tamper check of this tenant's audit log (see app/audit.py for what it can and cannot see)."""
+    return verify(db, principal.tenant.id)
+
+
+@router.get("")
+def list_audit(action: str | None = None, category: str | None = None, limit: int = Query(default=100, ge=1, le=500),
+               principal: Principal = Depends(require_admin), db: Session = Depends(get_db)) -> list[dict]:
+    """Newest first. ``category`` is the part of the action before the dot (``approval``, ``export``...):
+    a day of handoff replies should not bury the one change to a risk limit."""
+    query = select(AuditLog).where(AuditLog.tenant_id == principal.tenant.id)
+    if action:
+        query = query.where(AuditLog.action == action)
+    if category:
+        query = query.where(AuditLog.action.startswith(f"{category}.", autoescape=True))
+    rows = db.execute(query.order_by(AuditLog.id.desc()).limit(limit)).scalars().all()
+    actors = {u.id: u for u in db.execute(
+        select(User).where(User.id.in_({r.actor_id for r in rows if r.actor_id}))).scalars()}
+    return [
+        {"id": r.id, "action": r.action, "action_label": ACTIONS.get(r.action, r.action), "target": r.target,
+         "detail": r.detail, "request_id": r.request_id, "created_at": iso(r.created_at),
+         "actor": ({"id": r.actor_id, "name": actors[r.actor_id].name, "email": actors[r.actor_id].email}
+                   if r.actor_id in actors else None)}
+        for r in rows
+    ]

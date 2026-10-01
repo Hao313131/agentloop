@@ -1,0 +1,101 @@
+from __future__ import annotations
+
+import logging
+
+from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel, Field
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from ..agent.runtime import ResumeError
+from ..channels.whatsapp import WhatsAppClient
+from ..db import get_db
+from ..models import Approval, Conversation, Run, Tenant, User
+from ..security import Principal, require_staff
+from ..services import get_services
+from .common import get_owned, iso
+
+logger = logging.getLogger(__name__)
+router = APIRouter(prefix="/api/approvals", tags=["approvals"])
+
+
+class DecisionIn(BaseModel):
+    decision: str = Field(pattern="^(approve|reject)$")
+    comment: str = Field(default="", max_length=500)
+
+
+def required_role(a: Approval, tenant: Tenant) -> str:
+    """Who may approve: above the tenant's threshold, an administrator only. The four-eyes rule
+    alone (no self-approval) left any single agent able to release any amount, because the
+    requester is usually the customer."""
+    amount = float((a.arguments or {}).get("amount") or 0)
+    return "admin" if amount > tenant.approval_admin_threshold else "agent"
+
+
+def approval_out(db: Session, a: Approval) -> dict:
+    requester = db.get(User, a.requested_by)
+    reviewer = db.get(User, a.reviewer_id) if a.reviewer_id else None
+    run = db.get(Run, a.run_id)
+    return {
+        "id": a.id, "run_id": a.run_id, "conversation_id": a.conversation_id, "tool_name": a.tool_name,
+        "arguments": a.arguments, "reason": a.reason, "evidence": a.evidence, "status": a.status,
+        "requested_by": {"id": requester.id, "name": requester.name, "role": requester.role} if requester else None,
+        "reviewer": {"id": reviewer.id, "name": reviewer.name} if reviewer else None,
+        "question": run.input_text if run else "", "comment": a.comment,
+        "required_role": required_role(a, db.get(Tenant, a.tenant_id)),
+        "created_at": iso(a.created_at), "decided_at": iso(a.decided_at),
+    }
+
+
+@router.get("")
+def list_approvals(status_filter: str = "pending", principal: Principal = Depends(require_staff),
+                   db: Session = Depends(get_db)) -> list[dict]:
+    query = select(Approval).where(Approval.tenant_id == principal.tenant.id)
+    if status_filter != "all":
+        query = query.where(Approval.status == status_filter)
+    rows = db.execute(query.order_by(Approval.id.desc()).limit(200)).scalars().all()
+    return [approval_out(db, a) for a in rows]
+
+
+@router.post("/{approval_id}/decide")
+def decide(approval_id: int, body: DecisionIn, principal: Principal = Depends(require_staff),
+           db: Session = Depends(get_db)) -> dict:
+    approval = get_owned(db, Approval, approval_id, principal.tenant.id)
+    if approval.status != "pending":
+        raise HTTPException(status.HTTP_409_CONFLICT, "This approval has already been decided")
+    if approval.requested_by == principal.user.id:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "You cannot decide your own request (four-eyes principle)")
+    if body.decision == "reject" and not body.comment.strip():
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "A rejection needs a reason: the customer sees this comment")
+    if (body.decision == "approve" and required_role(approval, principal.tenant) == "admin"
+            and principal.user.role != "admin"):
+        threshold = principal.tenant.approval_admin_threshold
+        raise HTTPException(status.HTTP_403_FORBIDDEN,
+                            f"Amounts above ${threshold:,.0f} need an administrator (an agent can still reject)")
+    services = get_services()
+    try:
+        events = services.runtime(db).resume(approval, body.decision, principal.user, body.comment)
+    except ResumeError as exc:  # the approval is pending again and can be retried
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, str(exc)) from exc
+    except ValueError as exc:  # another reviewer decided first
+        raise HTTPException(status.HTTP_409_CONFLICT, str(exc)) from exc
+    final = next((e for e in events if e["type"] == "final"), {})
+
+    # The decision has been executed and committed (a refund may have been paid). Telling the
+    # customer on WhatsApp is best effort: if it fails, the reviewer must not see a 500 and retry
+    # a decision that already took effect; the answer is in the conversation either way.
+    delivery = None
+    conversation = db.get(Conversation, approval.conversation_id) if approval.conversation_id else None
+    if conversation and conversation.channel == "whatsapp" and conversation.external_id and final.get("text"):
+        try:
+            delivery = WhatsAppClient(services.settings, principal.tenant.slug).send_text(
+                conversation.external_id, final["text"])
+        except Exception:
+            logger.exception("whatsapp delivery of approval %s failed", approval.id)
+            delivery = {"sent": False, "error": "The WhatsApp message failed; the outcome is in the conversation"}
+    return {"approval": approval_out(db, approval), "final": final, "delivery": delivery}
+
+
+@router.get("/{approval_id}")
+def get_approval(approval_id: int, principal: Principal = Depends(require_staff), db: Session = Depends(get_db)) -> dict:
+    return approval_out(db, get_owned(db, Approval, approval_id, principal.tenant.id))
