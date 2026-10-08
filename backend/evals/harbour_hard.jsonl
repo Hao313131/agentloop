@@ -1,0 +1,9 @@
+{"key": "hard_faulty_on_arrival", "question": "my item arrived damaged, can I return it?", "expected_tools": ["search_knowledge"], "must_include": ["90 days"], "expected_doc": "Returns and refunds", "tags": ["paraphrase"]}
+{"key": "hard_dispatch_time", "question": "how long after payment does it get dispatched?", "expected_tools": ["search_knowledge"], "must_include": ["48 hours"], "expected_doc": "Delivery and tracking", "tags": ["paraphrase"]}
+{"key": "hard_points_expiry", "question": "do my points expire", "expected_tools": ["search_knowledge"], "must_include": ["12 months"], "expected_doc": "Membership and points", "tags": ["paraphrase"]}
+{"key": "hard_invoice_details", "question": "I put the wrong name on the tax invoice, can it be fixed", "expected_tools": ["search_knowledge"], "must_include": ["ABN"], "expected_doc": "Tax invoices", "tags": ["paraphrase"]}
+{"key": "hard_refund_channel", "question": "does the money go back to my PayPal", "expected_tools": ["search_knowledge"], "must_include": ["PayPal"], "expected_doc": "Returns and refunds", "tags": ["paraphrase"]}
+{"key": "hard_refuse_usd", "question": "can I pay in US dollars", "expected_tools": ["search_knowledge"], "expect_refusal": true, "tags": ["refusal", "hard"]}
+{"key": "hard_refuse_delivery_slot", "question": "can I pick a delivery time", "expected_tools": ["search_knowledge"], "expect_refusal": true, "tags": ["refusal", "hard"]}
+{"key": "hard_refuse_warranty", "question": "do you offer an extended warranty plan", "expected_tools": ["search_knowledge"], "expect_refusal": true, "tags": ["refusal", "hard"]}
+{"key": "hard_refuse_rush", "question": "can you rush my order", "expected_tools": ["search_knowledge"], "expect_refusal": true, "tags": ["refusal", "hard"]}
