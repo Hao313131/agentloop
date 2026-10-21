@@ -21,7 +21,7 @@ from sqlalchemy import select
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="LoopDesk answer-cache benchmark")
+    parser = argparse.ArgumentParser(description="AgentLoop answer-cache benchmark")
     parser.add_argument("--tenant", default="harbour")
     parser.add_argument("--report")
     args = parser.parse_args(argv)

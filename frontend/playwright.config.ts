@@ -29,12 +29,12 @@ export default defineConfig({
     timeout: 120_000,
     reuseExistingServer: false,
     env: {
-      LOOPDESK_DATABASE_URL: "sqlite:///./.e2e.db",
-      LOOPDESK_LLM_PROVIDER: "mock",
-      LOOPDESK_SEED_DEMO: "1",
-      LOOPDESK_LOG_LEVEL: "WARNING",
+      AGENTLOOP_DATABASE_URL: "sqlite:///./.e2e.db",
+      AGENTLOOP_LLM_PROVIDER: "mock",
+      AGENTLOOP_SEED_DEMO: "1",
+      AGENTLOOP_LOG_LEVEL: "WARNING",
       // No pre-seeded conversations: every queue and approval in the walkthrough is created by it.
-      LOOPDESK_SEED_DEMO_TRAFFIC: "0",
+      AGENTLOOP_SEED_DEMO_TRAFFIC: "0",
     },
   },
 });

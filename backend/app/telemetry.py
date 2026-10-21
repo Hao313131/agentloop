@@ -1,14 +1,14 @@
-"""Optional OpenTelemetry export of agent runs (LOOPDESK_OTLP_ENDPOINT).
+"""Optional OpenTelemetry export of agent runs (AGENTLOOP_OTLP_ENDPOINT).
 
-A run that has ended becomes one trace: a root span ``invoke_agent loopdesk`` and a child per
-LoopDesk span, timed from the stored spans and named and tagged with the OpenTelemetry GenAI
+A run that has ended becomes one trace: a root span ``invoke_agent agentloop`` and a child per
+AgentLoop span, timed from the stored spans and named and tagged with the OpenTelemetry GenAI
 semantic conventions (``chat <model>`` with token usage, ``execute_tool <tool>``), so
 Jaeger, Grafana Tempo, Langfuse and similar backends show model calls, tokens and tool calls
 without a custom adapter. A run paused for approval is exported once, when it finally ends,
 including the spans recorded before the pause (they are read back from the trace store).
 
 Only metadata leaves the service: no questions, answers, prompts or tool arguments. Those stay
-in LoopDesk's own store, behind tenant isolation, PII masking and the retention policy.
+in AgentLoop's own store, behind tenant isolation, PII masking and the retention policy.
 """
 
 from __future__ import annotations
@@ -36,7 +36,7 @@ def configure(settings: Settings) -> None:
         from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
         from opentelemetry.sdk.trace.export import BatchSpanProcessor
     except ImportError:  # pragma: no cover - the exporter is in requirements.txt
-        logger.warning("LOOPDESK_OTLP_ENDPOINT is set but opentelemetry-exporter-otlp-proto-http is not installed")
+        logger.warning("AGENTLOOP_OTLP_ENDPOINT is set but opentelemetry-exporter-otlp-proto-http is not installed")
         return
     _tracer = _provider(settings, BatchSpanProcessor(OTLPSpanExporter(endpoint=settings.otlp_endpoint)))
 
@@ -53,7 +53,7 @@ def _provider(settings: Settings, processor):
 
     provider = TracerProvider(resource=Resource.create({"service.name": settings.otlp_service_name}))
     provider.add_span_processor(processor)
-    return provider.get_tracer("loopdesk")
+    return provider.get_tracer("agentloop")
 
 
 def as_utc(moment: datetime) -> datetime:
@@ -67,7 +67,7 @@ def _ns(moment: datetime) -> int:
 def _child(span: Span) -> tuple[str, dict[str, Any], Any]:
     from opentelemetry.trace import SpanKind
 
-    attributes: dict[str, Any] = {"loopdesk.span.kind": span.kind, "loopdesk.span.status": span.status}
+    attributes: dict[str, Any] = {"agentloop.span.kind": span.kind, "agentloop.span.status": span.status}
     if span.kind == "llm":
         model = span.name.split(":", 1)[-1]
         attributes.update({"gen_ai.operation.name": "chat", "gen_ai.request.model": model,
@@ -98,15 +98,15 @@ def _export(db: Session, run: Run, settings: Settings) -> None:
     ends = [as_utc(s.started_at) + timedelta(milliseconds=s.latency_ms) for s in spans]
     started = min([as_utc(run.created_at)] + [as_utc(s.started_at) for s in spans])
     finished = max([as_utc(run.finished_at or datetime.now(timezone.utc))] + ends)
-    root = _tracer.start_span("invoke_agent loopdesk", kind=SpanKind.INTERNAL, start_time=_ns(started), attributes={
-        "gen_ai.operation.name": "invoke_agent", "gen_ai.agent.name": "loopdesk",
+    root = _tracer.start_span("invoke_agent agentloop", kind=SpanKind.INTERNAL, start_time=_ns(started), attributes={
+        "gen_ai.operation.name": "invoke_agent", "gen_ai.agent.name": "agentloop",
         "gen_ai.provider.name": settings.llm_provider, "gen_ai.request.model": run.model or "",
         "gen_ai.usage.input_tokens": run.prompt_tokens, "gen_ai.usage.output_tokens": run.completion_tokens,
         "gen_ai.conversation.id": str(run.conversation_id or ""),
-        "loopdesk.run.id": run.id, "loopdesk.tenant.id": run.tenant_id, "loopdesk.run.status": run.status,
-        "loopdesk.run.steps": run.steps, "loopdesk.run.route_tier": run.route_tier or "",
-        "loopdesk.run.cost": run.cost, "loopdesk.evidence.verdict": run.verdict or "",
-        "loopdesk.evidence.coverage": run.evidence_coverage if run.evidence_coverage is not None else -1.0,
+        "agentloop.run.id": run.id, "agentloop.tenant.id": run.tenant_id, "agentloop.run.status": run.status,
+        "agentloop.run.steps": run.steps, "agentloop.run.route_tier": run.route_tier or "",
+        "agentloop.run.cost": run.cost, "agentloop.evidence.verdict": run.verdict or "",
+        "agentloop.evidence.coverage": run.evidence_coverage if run.evidence_coverage is not None else -1.0,
     })
     if run.status == "failed":
         root.set_status(Status(StatusCode.ERROR, (run.error or "").split(":", 1)[0]))  # the exception type only

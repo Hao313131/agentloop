@@ -10,7 +10,7 @@ from tests.conftest import _reset_database
 
 
 def _url(tmp_path, name):
-    return os.environ.get("LOOPDESK_TEST_DATABASE_URL") or f"sqlite:///{tmp_path / name}"
+    return os.environ.get("AGENTLOOP_TEST_DATABASE_URL") or f"sqlite:///{tmp_path / name}"
 
 
 def test_migrations_produce_exactly_the_model_schema(tmp_path):

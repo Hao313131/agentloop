@@ -6,7 +6,7 @@ For every factual sentence it asks two questions:
    the whole answer ``blocked``.
 2. Is the wording grounded? Measured as token recall against the cited evidence
    (or all evidence if nothing is cited). Optionally an LLM judge replaces this check
-   for paraphrasing models (LOOPDESK_VERIFIER=llm); the number rule always stays.
+   for paraphrasing models (AGENTLOOP_VERIFIER=llm); the number rule always stays.
 3. Does it contradict a tool result? A sentence can be well grounded in the refund
    policy ("arrives in 1-3 working days") and still be wrong because the refund was
    rejected or failed. Claiming money is coming when it is not blocks the answer.

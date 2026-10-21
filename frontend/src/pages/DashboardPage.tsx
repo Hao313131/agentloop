@@ -105,7 +105,7 @@ export default function DashboardPage() {
         <div className="row row-wrap" aria-label="Export the last 30 days of data">
           <span className="faint">Export last 30 days (CSV)</span>
           {EXPORTS.map(([kind, label]) => (
-            <button key={kind} className="btn btn-sm" onClick={() => api.download(`/api/export/${kind}.csv?days=30`, `loopdesk-${kind}.csv`)}>
+            <button key={kind} className="btn btn-sm" onClick={() => api.download(`/api/export/${kind}.csv?days=30`, `agentloop-${kind}.csv`)}>
               <Download size={14} aria-hidden="true" /> {label}
             </button>
           ))}

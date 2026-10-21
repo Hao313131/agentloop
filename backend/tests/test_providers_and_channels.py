@@ -241,21 +241,21 @@ def test_whatsapp_config_binds_each_app_to_one_tenant(monkeypatch):
 
     for name in ("WHATSAPP_APPS", "WHATSAPP_PHONE_NUMBER_ID", "WHATSAPP_ACCESS_TOKEN",
                  "WHATSAPP_VERIFY_TOKEN", "WHATSAPP_TENANT"):
-        monkeypatch.delenv(f"LOOPDESK_{name}", raising=False)
-    monkeypatch.setenv("LOOPDESK_WHATSAPP_APPS", json.dumps({
+        monkeypatch.delenv(f"AGENTLOOP_{name}", raising=False)
+    monkeypatch.setenv("AGENTLOOP_WHATSAPP_APPS", json.dumps({
         "harbour": {"phone_number_id": "100000000000001", "access_token": "a1", "verify_token": "v1"},
         "rostr": {"phone_number_id": "100000000000002", "access_token": "a2", "verify_token": "v2"}}))
     assert Settings.from_env().whatsapp_apps["rostr"] == WhatsAppApp("100000000000002", "a2", "v2")
     # The single-app variables of earlier versions used to authenticate every tenant's URL.
-    monkeypatch.delenv("LOOPDESK_WHATSAPP_APPS")
+    monkeypatch.delenv("AGENTLOOP_WHATSAPP_APPS")
     for name, value in (("PHONE_NUMBER_ID", "100000000000009"), ("ACCESS_TOKEN", "a"), ("VERIFY_TOKEN", "v")):
-        monkeypatch.setenv(f"LOOPDESK_WHATSAPP_{name}", value)
-    with pytest.raises(ValueError, match="LOOPDESK_WHATSAPP_TENANT"):
+        monkeypatch.setenv(f"AGENTLOOP_WHATSAPP_{name}", value)
+    with pytest.raises(ValueError, match="AGENTLOOP_WHATSAPP_TENANT"):
         Settings.from_env()
-    monkeypatch.setenv("LOOPDESK_WHATSAPP_TENANT", "harbour")
+    monkeypatch.setenv("AGENTLOOP_WHATSAPP_TENANT", "harbour")
     assert list(Settings.from_env().whatsapp_apps) == ["harbour"]
     # Two tenants cannot share one business number: the number is what ties an event to a tenant.
-    monkeypatch.setenv("LOOPDESK_WHATSAPP_APPS", json.dumps({
+    monkeypatch.setenv("AGENTLOOP_WHATSAPP_APPS", json.dumps({
         "rostr": {"phone_number_id": "100000000000009", "access_token": "a2", "verify_token": "v2"}}))
     with pytest.raises(ValueError, match="phone_number_id"):
         Settings.from_env()
@@ -545,10 +545,10 @@ def test_mcp_server_tools_respect_permissions(settings, client, monkeypatch):
     from app.agent.business_tools import get_order
     from app.services import get_services
 
-    monkeypatch.setenv("LOOPDESK_MCP_USER", "customer@harbour.demo")
+    monkeypatch.setenv("AGENTLOOP_MCP_USER", "customer@harbour.demo")
     out = json.loads(mcp_server._call(get_services(), get_order, {"order_id": "SO20261003005"}))
     assert out == {"error": "That order does not exist or is not on your account"}
-    monkeypatch.setenv("LOOPDESK_MCP_USER", "agent@harbour.demo")
+    monkeypatch.setenv("AGENTLOOP_MCP_USER", "agent@harbour.demo")
     assert json.loads(mcp_server._call(get_services(), get_order, {"order_id": "SO20261003005"}))["amount"] == 899.0
 
 

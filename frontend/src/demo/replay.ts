@@ -30,7 +30,7 @@ interface LocalConversation {
 }
 
 export const isDemo = import.meta.env.VITE_DEMO === "1";
-export const REPO_URL = "https://github.com/Hao313131/loopdesk";
+export const REPO_URL = "https://github.com/Hao313131/agentloop";
 const NOT_SAVED = "This is a static demo, so changes are not saved. For the full flow (approvals, handoffs, tickets, knowledge base editing …) run it locally: git clone it, then docker compose up.";
 const NO_EXPORT = "Exports are not available in the static demo. Once it is running locally you can download CSVs here.";
 const TOKEN_PREFIX = "demo:";

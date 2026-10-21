@@ -1,12 +1,12 @@
-# LoopDesk · An evidence-first enterprise customer-service agent platform
+# AgentLoop · An evidence-first enterprise customer-service agent platform
 
-[![CI](https://github.com/Hao313131/loopdesk/actions/workflows/ci.yml/badge.svg)](https://github.com/Hao313131/loopdesk/actions/workflows/ci.yml)
+[![CI](https://github.com/Hao313131/agentloop/actions/workflows/ci.yml/badge.svg)](https://github.com/Hao313131/agentloop/actions/workflows/ci.yml)
 
-**[Open the live demo ↗](https://Hao313131.github.io/loopdesk/)** (no install needed — pick a role: customer, agent, or admin) · [Case study: one customer's refund, from question to money back](docs/CASE_STUDY.md) · [Architecture](docs/ARCHITECTURE.md) · [Evaluation](docs/EVALUATION.md)
+**[Open the live demo ↗](https://Hao313131.github.io/agentloop/)** (no install needed — pick a role: customer, agent, or admin) · [Case study: one customer's refund, from question to money back](docs/CASE_STUDY.md) · [Architecture](docs/ARCHITECTURE.md) · [Evaluation](docs/EVALUATION.md)
 
 **Every answer is sourced, every high-risk action is human-reviewed, and every human correction becomes a regression test.**
 
-LoopDesk is an agent platform for enterprise customer service: knowledge-base Q&A (RAG), order / logistics / refund / ticket tool calls, human approval, sentence-by-sentence evidence checks, a data flywheel, and a regression test suite — all in one observable system.
+AgentLoop is an agent platform for enterprise customer service: knowledge-base Q&A (RAG), order / logistics / refund / ticket tool calls, human approval, sentence-by-sentence evidence checks, a data flywheel, and a regression test suite — all in one observable system.
 
 Author: **Hao Xin** · a personal project · all companies, orders, and customers in the repo are fictional (SYNTHETIC).
 
@@ -20,7 +20,7 @@ Author: **Hao Xin** · a personal project · all companies, orders, and customer
 
 Businesses are happy to hand customer service to a large model, but once it goes live it usually stalls on three things:
 
-| Pain point | Consequence | What LoopDesk does |
+| Pain point | Consequence | What AgentLoop does |
 |---|---|---|
 | Hallucination: wrong refund timing, fees, or limits | Direct complaints | **Evidence binding**: the reply is split by sentence; every citation must exist and every number must match the evidence; in strict mode a reply that fails the bar is never sent |
 | Overreach and lost money: the agent refunds on its own | Financial risk, no accountability | **Reviewable actions**: tools are risk-rated; refunds above the tenant limit enter an approval queue with the agent's evidence pack attached; the approver can't be the requester, large refunds need an admin, and a rejection must state a reason |
@@ -98,7 +98,7 @@ The latest iterations are in [CHANGELOG.md](CHANGELOG.md): four rounds of "find 
 - MCP: read-only tools are exposed over MCP; Claude Desktop, Cursor, and similar clients connect directly.
 - Ops: Prometheus `/metrics`, Docker, docker-compose (PostgreSQL), GitHub Actions (SQLite + PostgreSQL dual-backend tests, eval gate, Playwright end-to-end walkthrough, image build).
 - DB migrations: Alembic manages schema versions and auto-upgrades on startup; a DB built with `create_all` by an older version gets its missing tables filled in and marked latest. CI checks on both SQLite and PostgreSQL that "model definitions exactly match the migration scripts".
-- OpenTelemetry: with `LOOPDESK_OTLP_ENDPOINT` set, each run exports as one OTel trace (`invoke_agent` → `chat <model>` / `execute_tool <tool>`, GenAI semantic conventions, with token usage), plugging straight into Jaeger, Grafana Tempo, or Langfuse; only metadata is exported, never conversation content.
+- OpenTelemetry: with `AGENTLOOP_OTLP_ENDPOINT` set, each run exports as one OTel trace (`invoke_agent` → `chat <model>` / `execute_tool <tool>`, GenAI semantic conventions, with token usage), plugging straight into Jaeger, Grafana Tempo, or Langfuse; only metadata is exported, never conversation content.
 - Debuggability: every request carries an `X-Request-ID` (it may reuse a gateway-passed ID), written into the JSON structured logs and the agent run record; on a 500 only the request_id is returned, no internals; `/api/ready` checks the database and migration version for Kubernetes and Docker health checks, while `/api/health` is the liveness check.
 - Data export: conversation logs, feedback, and approvals can be exported by day as CSV (UTF-8 BOM so Excel opens cleanly; cells starting with `=`, `+`, `-`, `@` are escaped to block CSV formula injection; tenant-isolated, exported text is the masked version).
 
@@ -185,19 +185,19 @@ Four paths, each spanning two roles: a customer asks and gets an evidenced reply
 
 ## How the live demo is made
 
-The [live demo](https://Hao313131.github.io/loopdesk/) is a static build of the same React console, hosted on GitHub Pages with no backend. On every push to main, `.github/workflows/pages.yml` first builds the console, then starts a real backend in CI (offline model, fictional data) and, by script, has a customer ask, an agent approve and reply, an admin change a limit, and runs the regression eval — recording every endpoint response the console would request plus the event stream of the sample questions (`python -m app.ops.record_demo`). The browser's `demo/replay.ts` serves these recordings in answer to requests: you can switch roles to browse every page and replay the sample questions on the chat page; submit-type actions don't take effect. The demo's data is never hand-written, and a test checks that every sample question on the chat page has a recording and that no login credentials are in the recordings.
+The [live demo](https://Hao313131.github.io/agentloop/) is a static build of the same React console, hosted on GitHub Pages with no backend. On every push to main, `.github/workflows/pages.yml` first builds the console, then starts a real backend in CI (offline model, fictional data) and, by script, has a customer ask, an agent approve and reply, an admin change a limit, and runs the regression eval — recording every endpoint response the console would request plus the event stream of the sample questions (`python -m app.ops.record_demo`). The browser's `demo/replay.ts` serves these recordings in answer to requests: you can switch roles to browse every page and replay the sample questions on the chat page; submit-type actions don't take effect. The demo's data is never hand-written, and a test checks that every sample question on the chat page has a recording and that no login credentials are in the recordings.
 
 ## Connecting a real model
 
 In `.env` (full details in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)):
 
 ```bash
-LOOPDESK_LLM_PROVIDER=openai_compat
-LOOPDESK_LLM_PRESET=openai              # openai | azure | deepseek | gemini
-LOOPDESK_LLM_API_KEY=...
-LOOPDESK_LLM_MODEL_STRONG=<model or endpoint id from the vendor console>
-LOOPDESK_LLM_MODEL_FAST=<a cheaper model>
-LOOPDESK_VERIFIER=llm                   # with a live model the wording is rephrased, so use the LLM judge for sentence support (number check always on)
+AGENTLOOP_LLM_PROVIDER=openai_compat
+AGENTLOOP_LLM_PRESET=openai              # openai | azure | deepseek | gemini
+AGENTLOOP_LLM_API_KEY=...
+AGENTLOOP_LLM_MODEL_STRONG=<model or endpoint id from the vendor console>
+AGENTLOOP_LLM_MODEL_FAST=<a cheaper model>
+AGENTLOOP_VERIFIER=llm                   # with a live model the wording is rephrased, so use the LLM judge for sentence support (number check always on)
 ```
 
 Before going live, run `python -m app.ops.llm_check` to self-test: it sends one minimal request to each tier and reports whether the failure is key, model name, parameter, or network. When a real model is connected, the demo's prefilled conversations are off by default (they call the model a dozen-odd times).

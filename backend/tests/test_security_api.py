@@ -133,7 +133,7 @@ def test_rate_limiter_holds_under_a_parallel_burst():
                                     "short-secret"])
 def test_production_config_refuses_a_public_or_short_jwt_secret(settings, secret):
     settings.seed_demo, settings.jwt_secret = False, secret
-    with pytest.raises(RuntimeError, match="LOOPDESK_JWT_SECRET"):
+    with pytest.raises(RuntimeError, match="AGENTLOOP_JWT_SECRET"):
         create_app(settings)
 
 
@@ -142,14 +142,14 @@ def test_demo_config_starts_but_warns_about_the_default_jwt_secret(settings, cap
     settings.jwt_secret = Settings().jwt_secret
     with caplog.at_level(logging.WARNING, logger="app.main"):
         create_app(settings)
-    assert "LOOPDESK_JWT_SECRET" in caplog.text
+    assert "AGENTLOOP_JWT_SECRET" in caplog.text
 
 
 def test_production_config_starts_with_a_strong_secret(settings):
     _reset_database(settings.database_url)
     settings.seed_demo = False  # the fixture's secret is 36 random-looking bytes
     settings.audit_key = "another-independent-audit-key-of-32-bytes!"
-    assert create_app(settings).title == "LoopDesk API"
+    assert create_app(settings).title == "AgentLoop API"
 
 
 @pytest.mark.parametrize("key", [None, "short", "test-secret-with-at-least-32-bytes!!"])
@@ -157,7 +157,7 @@ def test_production_config_refuses_a_missing_weak_or_shared_audit_key(settings, 
     # Code review: derived from the JWT secret, rotating that secret made every past audit entry
     # fail verification under a "the database may have been changed" banner.
     settings.seed_demo, settings.audit_key = False, key
-    with pytest.raises(RuntimeError, match="LOOPDESK_AUDIT_KEY"):
+    with pytest.raises(RuntimeError, match="AGENTLOOP_AUDIT_KEY"):
         create_app(settings)
 
 
@@ -314,6 +314,6 @@ def test_database_limiter_drops_expired_windows(client, monkeypatch):
 def test_rate_limit_backend_is_validated(monkeypatch):
     from app.config import Settings
 
-    monkeypatch.setenv("LOOPDESK_RATE_LIMIT_BACKEND", "redis")
+    monkeypatch.setenv("AGENTLOOP_RATE_LIMIT_BACKEND", "redis")
     with pytest.raises(ValueError, match="RATE_LIMIT_BACKEND"):
         Settings.from_env()

@@ -26,8 +26,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const onLogout = () => setUser(null);
-    window.addEventListener("loopdesk:logout", onLogout);
-    return () => window.removeEventListener("loopdesk:logout", onLogout);
+    window.addEventListener("agentloop:logout", onLogout);
+    return () => window.removeEventListener("agentloop:logout", onLogout);
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {

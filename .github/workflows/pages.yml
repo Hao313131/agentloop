@@ -1,6 +1,6 @@
 name: Demo site (GitHub Pages)
 
-# The static demo at https://Hao313131.github.io/loopdesk/ : the real console in replay mode.
+# The static demo at https://Hao313131.github.io/agentloop/ : the real console in replay mode.
 # Its data is recorded from the real backend on every deployment (offline model, SYNTHETIC
 # accounts and orders; backend/app/ops/record_demo.py), so the demo always shows what this
 # commit's code does. Nothing in the demo talks to a server.
@@ -42,11 +42,11 @@ jobs:
         working-directory: frontend
         env:
           VITE_DEMO: "1"
-          VITE_BASE: /loopdesk/
+          VITE_BASE: /agentloop/
         run: |
           pnpm install --frozen-lockfile
           pnpm build
-          cp dist/index.html dist/404.html  # deep links such as /loopdesk/approvals
+          cp dist/index.html dist/404.html  # deep links such as /agentloop/approvals
       - name: Record the demo from the real backend (offline model, synthetic data)
         working-directory: backend
         run: |

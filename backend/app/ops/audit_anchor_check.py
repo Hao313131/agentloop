@@ -2,7 +2,7 @@
 
     python -m app.ops.audit_anchor_check app.log      # exit 1 when something was removed or rewritten
 
-Reads JSON log lines (LOOPDESK_LOG_FORMAT=json), picks the "audit anchor" ones and runs
+Reads JSON log lines (AGENTLOOP_LOG_FORMAT=json), picks the "audit anchor" ones and runs
 app.audit.check_anchors. Run it against the copy kept by the log platform, not a log file on the
 same machine as the database.
 """

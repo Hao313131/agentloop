@@ -27,9 +27,9 @@ def _roots(exporter):
 def test_an_ended_run_is_one_trace_with_genai_attributes(exported, ask, login):
     _, events = ask(login("customer@harbour.demo"), "how long do refunds take?")
     [root] = _roots(exported)
-    assert root.name == "invoke_agent loopdesk"
-    assert root.attributes["loopdesk.run.id"] == events[0]["run_id"]
-    assert root.attributes["loopdesk.run.status"] == "completed"
+    assert root.name == "invoke_agent agentloop"
+    assert root.attributes["agentloop.run.id"] == events[0]["run_id"]
+    assert root.attributes["agentloop.run.status"] == "completed"
     children = [s for s in exported.get_finished_spans() if s.parent is not None]
     assert children and all(s.context.trace_id == root.context.trace_id
                             and s.parent.span_id == root.context.span_id for s in children)
@@ -57,7 +57,7 @@ def test_a_run_paused_for_approval_is_exported_once_when_it_ends(exported, clien
     client.post(f"/api/approvals/{approval_id}/decide", json={"decision": "approve"},
                 headers=login("admin@harbour.demo"))
     [root] = _roots(exported)
-    assert root.attributes["loopdesk.run.id"] == events[0]["run_id"]
+    assert root.attributes["agentloop.run.id"] == events[0]["run_id"]
     names = [s.name for s in exported.get_finished_spans() if s.parent is not None]
     assert "execute_tool get_order" in names, "spans from before the pause belong to the same trace"
     assert any(n.startswith("approval ") for n in names)

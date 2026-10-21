@@ -97,7 +97,7 @@ def test_an_untouched_audit_log_verifies(client, login):
 
 
 def test_editing_or_deleting_an_entry_in_the_database_is_detected(client, login):
-    # Someone with database access but without LOOPDESK_AUDIT_KEY hides that the refund limit was
+    # Someone with database access but without AGENTLOOP_AUDIT_KEY hides that the refund limit was
     # raised: rewriting the entry breaks its MAC, deleting it leaves a gap in the numbers.
     from sqlalchemy import delete, select, update
 
@@ -205,7 +205,7 @@ def _capture_anchor_log():
     stream = io.StringIO()
     handler = logging.StreamHandler(stream)
     handler.setFormatter(JsonFormatter())
-    logging.getLogger("loopdesk.audit").addHandler(handler)
+    logging.getLogger("agentloop.audit").addHandler(handler)
     return stream, handler
 
 
@@ -226,7 +226,7 @@ def test_cutting_off_the_newest_entries_is_caught_by_the_log_anchors(client, log
     try:
         _three_changes(client, admin)
     finally:
-        logging.getLogger("loopdesk.audit").removeHandler(handler)
+        logging.getLogger("agentloop.audit").removeHandler(handler)
     anchors = read_anchors(stream.getvalue().splitlines())
     assert [a["seq"] for a in anchors] == [1, 2, 3]
     with new_session() as db:
@@ -259,7 +259,7 @@ def test_an_entry_rolled_back_with_its_change_is_not_anchored(client, login):
             record(db, Principal(admin, tenant), "tenant.update", f"tenant:{tenant.id}", changes={})
             db.commit()
     finally:
-        logging.getLogger("loopdesk.audit").removeHandler(handler)
+        logging.getLogger("agentloop.audit").removeHandler(handler)
     from app.ops.audit_anchor_check import read_anchors
     assert [a["seq"] for a in read_anchors(stream.getvalue().splitlines())] == [1], \
         "the rolled-back number is reused, and only the committed entry is anchored"

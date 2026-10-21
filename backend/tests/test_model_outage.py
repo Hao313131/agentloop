@@ -145,7 +145,7 @@ def test_the_dashboard_counts_failures_even_when_customers_were_served(client, a
     assert failures["kinds"] == {"unavailable": 2} and "503" in failures["last_error"]
     assert failures["last_kind"] == "unavailable"
     assert overview["resolution_rate"] == 0.0, "a quoted policy during an outage is not self-service"
-    assert "loopdesk_run_errors_total 2" in client.get("/metrics").text
+    assert "agentloop_run_errors_total 2" in client.get("/metrics").text
 
 
 def test_a_rejected_request_is_told_apart_from_an_unavailable_model(client, ask, login, monkeypatch):

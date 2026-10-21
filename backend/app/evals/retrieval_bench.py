@@ -32,7 +32,7 @@ def _percentile(values: list[float], q: float) -> float:
 
 
 def main(argv: list[str] | None = None) -> int:  # pragma: no cover - benchmark CLI
-    parser = argparse.ArgumentParser(description="LoopDesk retrieval benchmark")
+    parser = argparse.ArgumentParser(description="AgentLoop retrieval benchmark")
     parser.add_argument("--sizes", default="1000,5000,20000")
     parser.add_argument("--queries", type=int, default=40)
     parser.add_argument("--report")

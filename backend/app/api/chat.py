@@ -164,7 +164,7 @@ def detached(produce: Callable[[], Iterator[dict]]) -> Iterator[dict]:
     # A new thread starts with an empty context: carry the request id (and tenant / user)
     # over, or the run's logs and trace lose their link to the request.
     context = contextvars.copy_context()
-    threading.Thread(target=context.run, args=(worker,), name="loopdesk-run", daemon=True).start()
+    threading.Thread(target=context.run, args=(worker,), name="agentloop-run", daemon=True).start()
     while (item := items.get()) is not done:
         yield item
 

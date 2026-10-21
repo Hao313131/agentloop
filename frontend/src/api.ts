@@ -1,6 +1,6 @@
 import type { AgentEvent } from "./types";
 
-const TOKEN_KEY = "loopdesk.token";
+const TOKEN_KEY = "agentloop.token";
 
 export function getToken(): string | null {
   try {
@@ -44,7 +44,7 @@ async function parse<T>(res: Response): Promise<T> {
   }
   if (res.status === 401) {
     setToken(null);
-    window.dispatchEvent(new Event("loopdesk:logout"));
+    window.dispatchEvent(new Event("agentloop:logout"));
   }
   throw new ApiError(res.status, message, body);
 }

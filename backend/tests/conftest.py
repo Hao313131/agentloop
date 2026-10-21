@@ -14,8 +14,8 @@ from app.seed import DEMO_PASSWORD
 @pytest.fixture()
 def settings(tmp_path):
     s = Settings()
-    # CI also runs the suite against PostgreSQL by setting LOOPDESK_TEST_DATABASE_URL.
-    s.database_url = os.environ.get("LOOPDESK_TEST_DATABASE_URL") or f"sqlite:///{tmp_path / 'test.db'}"
+    # CI also runs the suite against PostgreSQL by setting AGENTLOOP_TEST_DATABASE_URL.
+    s.database_url = os.environ.get("AGENTLOOP_TEST_DATABASE_URL") or f"sqlite:///{tmp_path / 'test.db'}"
     s.jwt_secret = "test-secret-with-at-least-32-bytes!!"
     s.rate_limit_per_minute = 1000
     s.seed_demo_traffic = False
@@ -23,7 +23,7 @@ def settings(tmp_path):
     s.prewarm_index = False  # tests build indexes on demand; test_observability covers the prewarm
     s.log_format = "text"
     # CI also runs the suite with buffered trace writes (the PostgreSQL default) on SQLite.
-    s.trace_writes = os.environ.get("LOOPDESK_TEST_TRACE_WRITES") or s.trace_writes
+    s.trace_writes = os.environ.get("AGENTLOOP_TEST_TRACE_WRITES") or s.trace_writes
     return s
 
 

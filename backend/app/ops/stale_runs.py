@@ -43,8 +43,8 @@ def stale_after(settings: Settings) -> timedelta:
 
     The run deadline bounds the agent loop: every model call in it is capped to the time left,
     and no step or retry starts after it. Outside the loop come the follow-up rewrite before it
-    (capped at REWRITE_BUDGET_SECONDS) and, with LOOPDESK_VERIFIER=llm, the judge after it: a
-    model call without a cap, up to 3 attempts of LOOPDESK_LLM_TIMEOUT. It is counted whatever
+    (capped at REWRITE_BUDGET_SECONDS) and, with AGENTLOOP_VERIFIER=llm, the judge after it: a
+    model call without a cap, up to 3 attempts of AGENTLOOP_LLM_TIMEOUT. It is counted whatever
     the verifier setting, since the job that sweeps may not share the app's configuration. A
     minute more covers tools, commits and lock waits. Defaults: 45 s + 5 s + 3 × 60 s + 60 s =
     290 s. With the deadline disabled, the loop is bounded by its steps only (each one: both

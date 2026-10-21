@@ -62,7 +62,7 @@ def _export(db: Session, principal: Principal, name: str, days: int, header: lis
     db.commit()
     stamp = datetime.now(timezone.utc).strftime("%Y%m%d")
     return Response(payload, media_type="text/csv; charset=utf-8",
-                    headers={"Content-Disposition": f'attachment; filename="loopdesk-{name}-{stamp}.csv"'})
+                    headers={"Content-Disposition": f'attachment; filename="agentloop-{name}-{stamp}.csv"'})
 
 
 def _since(days: int) -> datetime:

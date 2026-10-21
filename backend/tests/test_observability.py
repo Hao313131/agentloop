@@ -41,7 +41,7 @@ def test_agent_runs_record_the_request_id(client, login):
 def test_json_log_lines_carry_request_context():
     token = request_id_var.set("ctx-req-0001")
     try:
-        record = logging.LogRecord("loopdesk.access", logging.INFO, __file__, 1, "request", None, None)
+        record = logging.LogRecord("agentloop.access", logging.INFO, __file__, 1, "request", None, None)
         record.status, record.path = 200, "/api/health"
         line = json.loads(JsonFormatter().format(record))
     finally:
@@ -101,7 +101,7 @@ def test_the_access_log_says_which_tenant_and_user_made_the_request(client, logi
     stream = io.StringIO()
     handler = logging.StreamHandler(stream)
     handler.setFormatter(JsonFormatter())
-    access = logging.getLogger("loopdesk.access")
+    access = logging.getLogger("agentloop.access")
     access.addHandler(handler)
     try:
         client.get("/api/conversations", headers=headers)

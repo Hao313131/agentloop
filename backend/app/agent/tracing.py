@@ -6,7 +6,7 @@ so the trace view updates live; SQLite has one writer, and short transactions ke
 tail latency down. Buffered (PostgreSQL default): spans and token usage stay in memory and
 are written at the run's own commit points (finish, pause for approval, failure), which
 removes about two thirds of a request's SQL round trips; the trace appears when the run
-ends. LOOPDESK_TRACE_WRITES=auto|per_span|buffered."""
+ends. AGENTLOOP_TRACE_WRITES=auto|per_span|buffered."""
 
 from __future__ import annotations
 

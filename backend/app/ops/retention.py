@@ -62,7 +62,7 @@ def main(argv: list[str] | None = None) -> int:  # pragma: no cover - CLI wrappe
     from ..config import get_settings
     from ..db import init_engine, new_session
 
-    parser = argparse.ArgumentParser(description="LoopDesk data retention")
+    parser = argparse.ArgumentParser(description="AgentLoop data retention")
     parser.add_argument("--days", type=int, required=True)
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args(argv)

@@ -19,17 +19,17 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_USER: loopdesk
-          POSTGRES_PASSWORD: loopdesk
-          POSTGRES_DB: loopdesk_bench
+          POSTGRES_USER: agentloop
+          POSTGRES_PASSWORD: agentloop
+          POSTGRES_DB: agentloop_bench
         ports: ["5432:5432"]
         options: >-
-          --health-cmd "pg_isready -U loopdesk" --health-interval 5s --health-timeout 5s --health-retries 10
+          --health-cmd "pg_isready -U agentloop" --health-interval 5s --health-timeout 5s --health-retries 10
     defaults:
       run:
         working-directory: backend
     env:
-      PG_BASE: postgresql+psycopg://loopdesk:loopdesk@localhost:5432
+      PG_BASE: postgresql+psycopg://agentloop:agentloop@localhost:5432
       DURATION: ${{ inputs.duration }}
     steps:
       - uses: actions/checkout@v4
@@ -43,10 +43,10 @@ jobs:
         run: python -m app.evals.load_bench --concurrency 1,4,16 --duration "$DURATION" --report sqlite-w1.json
       - name: Separate PostgreSQL databases per setup
         run: |
-          for db in bench_w1_per_span bench_w1 bench_w4; do PGPASSWORD=loopdesk psql -h localhost -U loopdesk -d loopdesk_bench -c "CREATE DATABASE $db"; done
+          for db in bench_w1_per_span bench_w1 bench_w4; do PGPASSWORD=agentloop psql -h localhost -U agentloop -d agentloop_bench -c "CREATE DATABASE $db"; done
       - name: PostgreSQL, 1 worker, per-span trace commits (for comparison)
         env:
-          LOOPDESK_TRACE_WRITES: per_span
+          AGENTLOOP_TRACE_WRITES: per_span
         run: python -m app.evals.load_bench --database-url "$PG_BASE/bench_w1_per_span" --workers 1 --concurrency 1,4,16 --duration "$DURATION" --report pg-w1-per-span.json
       - name: PostgreSQL, 1 worker
         run: python -m app.evals.load_bench --database-url "$PG_BASE/bench_w1" --workers 1 --concurrency 1,4,16 --duration "$DURATION" --report pg-w1.json

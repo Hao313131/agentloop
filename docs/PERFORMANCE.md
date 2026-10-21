@@ -111,7 +111,7 @@ Within one CI run (PostgreSQL, 1 worker):
 
 Throughput up 39%–47%. In the same run, PostgreSQL 4 workers hit 129.7 RPS / p99 193ms at concurrency 16.
 
-**A bug CI caught**: after the first push, CI's PostgreSQL job failed 4 tests. On run end, the system judges state (handoff or not) and whether to write the answer cache from the tools used this run, and the tool list was queried from the database's spans; in batched mode those spans were still in memory, so the query returned empty. The fix passes the buffer to the session before querying. To stop relying only on the PostgreSQL job for this class of bug, the SQLite job also re-runs the full suite in batched mode (`LOOPDESK_TEST_TRACE_WRITES=buffered`).
+**A bug CI caught**: after the first push, CI's PostgreSQL job failed 4 tests. On run end, the system judges state (handoff or not) and whether to write the answer cache from the tools used this run, and the tool list was queried from the database's spans; in batched mode those spans were still in memory, so the query returned empty. The fix passes the buffer to the session before querying. To stop relying only on the PostgreSQL job for this class of bug, the SQLite job also re-runs the full suite in batched mode (`AGENTLOOP_TEST_TRACE_WRITES=buffered`).
 
 ## Experiment: async span commit on PostgreSQL (not adopted)
 

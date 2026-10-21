@@ -2,7 +2,7 @@
 
 Posts to a Slack incoming webhook (https://api.slack.com/messaging/webhooks) with a Block Kit
 message, so the approvals channel shows the amount, the order and the reason, and links back
-to the queue. Without LOOPDESK_SLACK_WEBHOOK_URL the message is only recorded in the trace
+to the queue. Without AGENTLOOP_SLACK_WEBHOOK_URL the message is only recorded in the trace
 (dry run), so the demo never calls out to the internet.
 """
 
@@ -29,7 +29,7 @@ def approval_message(approval: Approval, tenant: Tenant) -> dict:
             ]},
             {"type": "section", "text": {"type": "mrkdwn", "text": f"*Reason*\n{approval.reason}"}},
             {"type": "context", "elements": [
-                {"type": "mrkdwn", "text": "Approve or reject in LoopDesk → Approvals. "
+                {"type": "mrkdwn", "text": "Approve or reject in AgentLoop → Approvals. "
                                            "The agent's evidence pack is attached to the request."},
             ]},
         ],

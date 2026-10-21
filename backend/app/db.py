@@ -28,7 +28,7 @@ def _sqlite_pragmas(conn, _record) -> None:
 
 def init_engine(database_url: str) -> Engine:
     """Create the engine once per process. SQLite is the zero-setup default;
-    PostgreSQL is used in docker-compose via LOOPDESK_DATABASE_URL."""
+    PostgreSQL is used in docker-compose via AGENTLOOP_DATABASE_URL."""
     global _engine, _SessionLocal
     connect_args = {"check_same_thread": False} if database_url.startswith("sqlite") else {}
     _engine = create_engine(database_url, connect_args=connect_args, pool_pre_ping=True)

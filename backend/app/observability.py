@@ -5,7 +5,7 @@ new one). It is returned in the response header, attached to every log line, sto
 the agent run's state, and included in 500 responses, so a user reporting "it broke" can
 quote one ID that leads straight to the logs and the trace.
 
-Logs are one JSON object per line (LOOPDESK_LOG_FORMAT=json, the default) so they can be
+Logs are one JSON object per line (AGENTLOOP_LOG_FORMAT=json, the default) so they can be
 shipped to ELK / Loki / Cloud Logging without parsing rules.
 """
 
@@ -55,8 +55,8 @@ SECURITY_HEADERS = {
     ),
 }
 
-logger = logging.getLogger("loopdesk")
-access_logger = logging.getLogger("loopdesk.access")
+logger = logging.getLogger("agentloop")
+access_logger = logging.getLogger("agentloop.access")
 _SAFE_ID = re.compile(r"^[A-Za-z0-9._-]{8,64}$")
 
 
@@ -83,7 +83,7 @@ def configure_logging(fmt: str = "json", level: str = "INFO") -> None:
     handler = logging.StreamHandler()
     handler.setFormatter(JsonFormatter() if fmt == "json" else logging.Formatter(
         "%(asctime)s %(levelname)s %(name)s %(message)s"))
-    root = logging.getLogger("loopdesk")
+    root = logging.getLogger("agentloop")
     root.handlers[:] = [handler]
     root.setLevel(level.upper())
     root.propagate = False

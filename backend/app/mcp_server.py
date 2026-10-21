@@ -1,14 +1,14 @@
-"""Expose LoopDesk's read-only tools over MCP (Model Context Protocol, stdio).
+"""Expose AgentLoop's read-only tools over MCP (Model Context Protocol, stdio).
 
 Any MCP client (Claude Desktop, Cursor, an internal agent) can then search the
 knowledge base and look up orders with the same permission checks as the web agent.
 Write tools (refunds, tickets) are deliberately not exposed.
 
-    LOOPDESK_MCP_USER=agent@harbour.demo python -m app.mcp_server
+    AGENTLOOP_MCP_USER=agent@harbour.demo python -m app.mcp_server
 
 Client config example (Claude Desktop ``mcpServers``):
-    "loopdesk": {"command": "/path/to/backend/.venv/bin/python", "args": ["-m", "app.mcp_server"],
-                 "cwd": "/path/to/backend", "env": {"LOOPDESK_MCP_USER": "agent@harbour.demo"}}
+    "agentloop": {"command": "/path/to/backend/.venv/bin/python", "args": ["-m", "app.mcp_server"],
+                 "cwd": "/path/to/backend", "env": {"AGENTLOOP_MCP_USER": "agent@harbour.demo"}}
 """
 
 from __future__ import annotations
@@ -28,7 +28,7 @@ from .services import Services
 
 
 def _call(services: Services, handler, args: dict) -> str:
-    email = os.environ.get("LOOPDESK_MCP_USER", "agent@harbour.demo")
+    email = os.environ.get("AGENTLOOP_MCP_USER", "agent@harbour.demo")
     with new_session() as db:
         user = db.execute(select(User).where(User.email == email)).scalar_one_or_none()
         if user is None:
@@ -50,21 +50,21 @@ def build_server():
     init_engine(settings.database_url)
     prepare_database(settings.database_url, settings.auto_migrate)
     services = Services(settings)
-    server = MCPServer("loopdesk")
+    server = MCPServer("agentloop")
 
     @server.tool()
-    def loopdesk_search_knowledge(query: str, top_k: int = 4) -> str:
-        """Search the LoopDesk business knowledge base. Returns numbered excerpts with relevance, filtered
+    def agentloop_search_knowledge(query: str, top_k: int = 4) -> str:
+        """Search the AgentLoop business knowledge base. Returns numbered excerpts with relevance, filtered
         by what the MCP identity is allowed to see."""
         return _call(services, search_knowledge, {"query": query, "top_k": top_k})
 
     @server.tool()
-    def loopdesk_get_order(order_id: str) -> str:
+    def agentloop_get_order(order_id: str) -> str:
         """Look up an order by number: status, total and whether it can be refunded."""
         return _call(services, get_order, {"order_id": order_id})
 
     @server.tool()
-    def loopdesk_track_shipment(order_id: str) -> str:
+    def agentloop_track_shipment(order_id: str) -> str:
         """Look up an order's delivery progress."""
         return _call(services, track_shipment, {"order_id": order_id})
 

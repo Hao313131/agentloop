@@ -145,7 +145,7 @@ export default function Layout() {
       >
         <div className="brand">
           <Logo />
-          <span className="brand-name">LoopDesk</span>
+          <span className="brand-name">AgentLoop</span>
           <button ref={closeRef} className="icon-btn nav-close" aria-label="Close navigation" onClick={closeNav}>
             <X size={18} />
           </button>
@@ -201,7 +201,7 @@ export default function Layout() {
             </button>
             <span className="ellipsis crumb-tenant">{user?.tenant.name}</span>
             <span className="crumb-tenant">/</span>
-            <b className="ellipsis">{TITLES[section] ?? "LoopDesk"}</b>
+            <b className="ellipsis">{TITLES[section] ?? "AgentLoop"}</b>
           </div>
           <div className="row">
             <span className="badge">{isDemo ? "Static demo" : "Demo"}<span className="hide-compact"> · all data is fictional</span></span>

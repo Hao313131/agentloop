@@ -1,6 +1,6 @@
 # Case study: one customer's refund, from question to money back
 
-This is an original fictional online retailer (Harbour & Home), not a customer interview or a record of a real deployment. The people, orders and amounts are invented (SYNTHETIC). Every step below can be seen in the [live demo](https://Hao313131.github.io/loopdesk/), whose data was recorded from the real backend running offline.
+This is an original fictional online retailer (Harbour & Home), not a customer interview or a record of a real deployment. The people, orders and amounts are invented (SYNTHETIC). Every step below can be seen in the [live demo](https://Hao313131.github.io/agentloop/), whose data was recorded from the real backend running offline.
 
 ## An ordinary afternoon
 
@@ -13,7 +13,7 @@ If customer service were just a chat model, four things would go wrong that afte
 3. **The promise is never kept.** The model says "technical support will contact you within 4 hours", but nobody on the staff side can see that ticket.
 4. **One model wobble and everyone is stuck.** Every customer sees "the assistant is busy right now, please try again later or ask for a human agent" — and typing "transfer me to a human" gets the same reply, because handing over was itself a decision the model had to make.
 
-LoopDesk treats those four as design inputs, not as things to remind the model about in a prompt.
+AgentLoop treats those four as design inputs, not as things to remind the model about in a prompt.
 
 ## From problem to implementation
 

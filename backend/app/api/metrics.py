@@ -204,14 +204,14 @@ def prometheus(db: Session = Depends(get_db)) -> str:
         select(Run.status, func.count(Run.id), func.sum(Run.prompt_tokens), func.sum(Run.completion_tokens))
         .where(Run.is_eval.is_(False)).group_by(Run.status)
     ).all()
-    lines = ["# HELP loopdesk_runs_total Agent runs by final status", "# TYPE loopdesk_runs_total counter"]
-    lines += [f'loopdesk_runs_total{{status="{s}"}} {c}' for s, c, _, _ in rows]
-    lines += ["# HELP loopdesk_tokens_total Tokens consumed", "# TYPE loopdesk_tokens_total counter"]
-    lines.append(f'loopdesk_tokens_total{{type="prompt"}} {sum(p or 0 for _, _, p, _ in rows)}')
-    lines.append(f'loopdesk_tokens_total{{type="completion"}} {sum(c or 0 for _, _, _, c in rows)}')
+    lines = ["# HELP agentloop_runs_total Agent runs by final status", "# TYPE agentloop_runs_total counter"]
+    lines += [f'agentloop_runs_total{{status="{s}"}} {c}' for s, c, _, _ in rows]
+    lines += ["# HELP agentloop_tokens_total Tokens consumed", "# TYPE agentloop_tokens_total counter"]
+    lines.append(f'agentloop_tokens_total{{type="prompt"}} {sum(p or 0 for _, _, p, _ in rows)}')
+    lines.append(f'agentloop_tokens_total{{type="completion"}} {sum(c or 0 for _, _, _, c in rows)}')
     # Runs that hit an error, whatever their status: with the fallback (N-031) a model outage ends in
     # quoted policy or a handoff, not "failed". Alert on its rate (docs/DEPLOYMENT.md).
     errors = db.execute(select(func.count(Run.id)).where(Run.is_eval.is_(False), Run.error.isnot(None))).scalar_one()
-    lines += ["# HELP loopdesk_run_errors_total Agent runs that hit an error (model, timeout, crash)",
-              "# TYPE loopdesk_run_errors_total counter", f"loopdesk_run_errors_total {errors}"]
+    lines += ["# HELP agentloop_run_errors_total Agent runs that hit an error (model, timeout, crash)",
+              "# TYPE agentloop_run_errors_total counter", f"agentloop_run_errors_total {errors}"]
     return "\n".join(lines) + "\n"

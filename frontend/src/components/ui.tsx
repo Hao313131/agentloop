@@ -159,7 +159,7 @@ export function Logo({ size = 24 }: { size?: number }) {
 }
 
 type Theme = "system" | "light" | "dark";
-const THEME_KEY = "loopdesk.theme";
+const THEME_KEY = "agentloop.theme";
 
 function applyTheme(theme: Theme) {
   if (theme === "system") document.documentElement.removeAttribute("data-theme");

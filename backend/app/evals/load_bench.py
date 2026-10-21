@@ -57,7 +57,7 @@ def _prepare_database(database_url: str) -> None:
     otherwise run the migrations and the seed at the same time. Non-destructive: an
     existing database keeps its data (the seed skips it)."""
     subprocess.run([sys.executable, "-m", "app.seed"], cwd=BACKEND_DIR, check=True, stdout=subprocess.DEVNULL,
-                   env={**os.environ, "LOOPDESK_DATABASE_URL": database_url, "LOOPDESK_SEED_DEMO_TRAFFIC": "0"})
+                   env={**os.environ, "AGENTLOOP_DATABASE_URL": database_url, "AGENTLOOP_SEED_DEMO_TRAFFIC": "0"})
 
 
 def _start_server(database_url: str, workers: int, cache_hours: float,
@@ -65,15 +65,15 @@ def _start_server(database_url: str, workers: int, cache_hours: float,
     port = _free_port()
     env = {
         **os.environ,
-        "LOOPDESK_DATABASE_URL": database_url,
-        "LOOPDESK_SEED_DEMO": "0",  # seeded by _prepare_database; non-demo mode needs a real secret
-        "LOOPDESK_JWT_SECRET": secrets.token_urlsafe(48),
-        "LOOPDESK_AUDIT_KEY": secrets.token_urlsafe(48),  # non-demo mode wants its own audit key too
-        "LOOPDESK_SEED_DEMO_TRAFFIC": "0",
-        "LOOPDESK_RATE_LIMIT_PER_MINUTE": "1000000",
-        "LOOPDESK_MOCK_STREAM_DELAY": "0",
-        "LOOPDESK_LOG_LEVEL": "WARNING",
-        "LOOPDESK_ANSWER_CACHE_TTL_HOURS": str(cache_hours),
+        "AGENTLOOP_DATABASE_URL": database_url,
+        "AGENTLOOP_SEED_DEMO": "0",  # seeded by _prepare_database; non-demo mode needs a real secret
+        "AGENTLOOP_JWT_SECRET": secrets.token_urlsafe(48),
+        "AGENTLOOP_AUDIT_KEY": secrets.token_urlsafe(48),  # non-demo mode wants its own audit key too
+        "AGENTLOOP_SEED_DEMO_TRAFFIC": "0",
+        "AGENTLOOP_RATE_LIMIT_PER_MINUTE": "1000000",
+        "AGENTLOOP_MOCK_STREAM_DELAY": "0",
+        "AGENTLOOP_LOG_LEVEL": "WARNING",
+        "AGENTLOOP_ANSWER_CACHE_TTL_HOURS": str(cache_hours),
         **(extra_env or {}),
     }
     proc = subprocess.Popen(
@@ -154,7 +154,7 @@ def _run_level(base: str, tokens: dict[str, str], concurrency: int, duration: fl
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="LoopDesk chat API load test")
+    parser = argparse.ArgumentParser(description="AgentLoop chat API load test")
     parser.add_argument("--concurrency", default="1,4,16")
     parser.add_argument("--duration", type=float, default=10.0, help="seconds per concurrency level")
     parser.add_argument("--workers", type=int, default=1, help="uvicorn worker processes")
@@ -171,7 +171,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         tokens = {}
         for email in {e for e, _ in QUESTIONS}:
-            r = httpx.post(f"{base}/api/auth/login", json={"email": email, "password": "loopdesk-demo"}, timeout=10)
+            r = httpx.post(f"{base}/api/auth/login", json={"email": email, "password": "agentloop-demo"}, timeout=10)
             tokens[email] = r.json()["token"]
         if args.warmup > 0:  # steady state, not start-up: each worker process warms its own caches
             _run_level(base, tokens, max(int(c) for c in args.concurrency.split(",")), args.warmup)

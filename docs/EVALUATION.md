@@ -2,7 +2,7 @@
 
 ## What is evaluated
 
-A customer-service agent's mistakes are rarely "poorly worded answers" but rather **doing the wrong thing**: answering when it should refuse, refunding directly when it should route to approval, or looking up someone else's order. So LoopDesk's evaluation scores by **trajectory**: each case can declare these expectations:
+A customer-service agent's mistakes are rarely "poorly worded answers" but rather **doing the wrong thing**: answering when it should refuse, refunding directly when it should route to approval, or looking up someone else's order. So AgentLoop's evaluation scores by **trajectory**: each case can declare these expectations:
 
 | Field | What it checks |
 |---|---|
@@ -121,11 +121,11 @@ Both versions run the same cases. If the candidate version flips even one case f
 | v1 | 22/22 | 24,613 | current default |
 | v2 | 22/22 | 16,926 (−31.2%) | same 8 rules, slimmed wording |
 
-The offline model doesn't read prompt wording, so this only shows "the slim version saves tokens and doesn't break the flow" — **not** that answer quality is unchanged. Rollout: offline A/B with a real model → set `LOOPDESK_PROMPT_CANARY_VERSION=v2` and `LOOPDESK_PROMPT_CANARY_PERCENT=5` for a canary → watch handoff rate, evidence conflicts, and coverage in the dashboard's "Prompt version comparison" → ramp up gradually, or roll back to 0.
+The offline model doesn't read prompt wording, so this only shows "the slim version saves tokens and doesn't break the flow" — **not** that answer quality is unchanged. Rollout: offline A/B with a real model → set `AGENTLOOP_PROMPT_CANARY_VERSION=v2` and `AGENTLOOP_PROMPT_CANARY_PERCENT=5` for a canary → watch handoff rate, evidence conflicts, and coverage in the dashboard's "Prompt version comparison" → ramp up gradually, or roll back to 0.
 
 ## Evaluating with a real model
 
-1. Configure a real model in `.env` (see [DEPLOYMENT.md](DEPLOYMENT.md)) and set `LOOPDESK_VERIFIER=llm`.
+1. Configure a real model in `.env` (see [DEPLOYMENT.md](DEPLOYMENT.md)) and set `AGENTLOOP_VERIFIER=llm`.
 2. Run `python -m app.evals.cli --fresh --report real.json`.
 3. Watch these:
    - **Pass rate and failure types**: a real model's common problems are wording rephrasing breaking `must_include`, missing citation numbers, or one extra tool call. First separate "the case is written too rigidly" from "the model is genuinely wrong".

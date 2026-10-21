@@ -48,7 +48,7 @@ export default function LoginPage() {
       <section className="login-intro">
         <div className="row" style={{ gap: 10 }}>
           <Logo size={28} />
-          <b style={{ fontSize: 16 }}>LoopDesk</b>
+          <b style={{ fontSize: 16 }}>AgentLoop</b>
         </div>
         <div className="headline">
           <h1>The customer service desk for AI agents</h1>

@@ -19,8 +19,8 @@ COPY backend/requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt "psycopg[binary]>=3.2"
 COPY backend/ ./
 COPY --from=web /web/dist /app/frontend/dist
-RUN useradd --create-home loopdesk && chown -R loopdesk /app
-USER loopdesk
+RUN useradd --create-home agentloop && chown -R agentloop /app
+USER agentloop
 EXPOSE 8000
 # Readiness = database reachable, schema at the latest migration, retrieval indexes warm (see /api/ready).
 HEALTHCHECK --interval=15s --timeout=5s --start-period=20s --retries=3 \

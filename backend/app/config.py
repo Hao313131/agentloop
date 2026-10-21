@@ -1,6 +1,6 @@
 """Runtime configuration.
 
-Every setting comes from an environment variable prefixed with ``LOOPDESK_`` so the same
+Every setting comes from an environment variable prefixed with ``AGENTLOOP_`` so the same
 image runs in dev, CI and production. Provider presets cover the OpenAI-compatible endpoints
 used by the model vendors available in Australia, so switching from the offline mock to
 OpenAI, Azure OpenAI, DeepSeek or Gemini is a two-line change in ``.env``.
@@ -13,17 +13,17 @@ import os
 from dataclasses import dataclass, field
 
 # Base URLs of OpenAI-compatible chat endpoints. Model IDs change often, so they are never
-# hard-coded here: copy them from each vendor's console into LOOPDESK_LLM_MODEL_*.
+# hard-coded here: copy them from each vendor's console into AGENTLOOP_LLM_MODEL_*.
 PROVIDER_PRESETS: dict[str, str] = {
     "openai": "https://api.openai.com/v1",
-    # Azure OpenAI is per-resource: LOOPDESK_LLM_BASE_URL must override this placeholder.
+    # Azure OpenAI is per-resource: AGENTLOOP_LLM_BASE_URL must override this placeholder.
     "azure": "https://YOUR-RESOURCE.openai.azure.com/openai",
     "deepseek": "https://api.deepseek.com/v1",
     "gemini": "https://generativelanguage.googleapis.com/v1beta/openai",
 }
 
 # Example prices in AUD per 1M tokens (input, output). They only drive the cost column of
-# traces; override with LOOPDESK_PRICES='{"model": [in, out]}' using your contract.
+# traces; override with AGENTLOOP_PRICES='{"model": [in, out]}' using your contract.
 @dataclass(frozen=True)
 class WhatsAppApp:
     """One tenant's WhatsApp Business app. Each tenant gets its own: with one shared verify
@@ -52,7 +52,7 @@ PUBLIC_JWT_SECRETS = frozenset({
 
 
 def _env(name: str, default: str | None = None) -> str | None:
-    value = os.environ.get(f"LOOPDESK_{name}")
+    value = os.environ.get(f"AGENTLOOP_{name}")
     return value if value not in (None, "") else default
 
 
@@ -75,7 +75,7 @@ def _env_int(name: str, default: int) -> int:
 
 @dataclass
 class Settings:
-    database_url: str = "sqlite:///./loopdesk.db"
+    database_url: str = "sqlite:///./agentloop.db"
     jwt_secret: str = "dev-only-insecure-secret-change-me-in-prod"
     audit_key: str | None = None  # HMAC key for audit entries; derived from jwt_secret when unset
     jwt_expire_minutes: int = 720
@@ -96,7 +96,7 @@ class Settings:
     llm_model_strong: str = "mock-strong"
     llm_timeout: float = 60.0
     otlp_endpoint: str | None = None  # OTLP/HTTP traces endpoint, e.g. http://otel-collector:4318/v1/traces
-    otlp_service_name: str = "loopdesk"
+    otlp_service_name: str = "agentloop"
     # Whole run (all steps, retries, both model tiers); 0 disables. A customer is handed to a person
     # when it runs out, so it is the longest anyone waits for a hanging model (was 90 s, N-031).
     run_deadline_seconds: float = 45.0
@@ -187,7 +187,7 @@ class Settings:
         s.mock_stream_delay = _env_float("MOCK_STREAM_DELAY", s.mock_stream_delay)
         s.trace_writes = _env("TRACE_WRITES") or s.trace_writes
         if s.trace_writes not in ("auto", "per_span", "buffered"):
-            raise ValueError("LOOPDESK_TRACE_WRITES must be auto, per_span or buffered")
+            raise ValueError("AGENTLOOP_TRACE_WRITES must be auto, per_span or buffered")
 
         s.embedding_provider = _env("EMBEDDING_PROVIDER", s.embedding_provider)
         s.embedding_base_url = _env("EMBEDDING_BASE_URL", s.llm_base_url)
@@ -209,7 +209,7 @@ class Settings:
         s.login_attempts_per_ip = _env_int("LOGIN_ATTEMPTS_PER_IP", s.login_attempts_per_ip)
         s.rate_limit_backend = _env("RATE_LIMIT_BACKEND") or s.rate_limit_backend
         if s.rate_limit_backend not in ("auto", "memory", "database"):
-            raise ValueError("LOOPDESK_RATE_LIMIT_BACKEND must be auto, memory or database")
+            raise ValueError("AGENTLOOP_RATE_LIMIT_BACKEND must be auto, memory or database")
         s.refund_window_days = _env_int("REFUND_WINDOW_DAYS", s.refund_window_days)
         s.refund_window_max_count = _env_int("REFUND_WINDOW_MAX_COUNT", s.refund_window_max_count)
         s.refund_window_max_amount = _env_float("REFUND_WINDOW_MAX_AMOUNT", s.refund_window_max_amount)
@@ -269,8 +269,8 @@ def set_settings(settings: Settings) -> None:
 
 
 def _whatsapp_apps() -> dict[str, WhatsAppApp]:
-    """LOOPDESK_WHATSAPP_APPS='{"<tenant slug>": {"phone_number_id", "access_token", "verify_token"}}'.
-    The single-app variables of earlier versions still work, but only with LOOPDESK_WHATSAPP_TENANT
+    """AGENTLOOP_WHATSAPP_APPS='{"<tenant slug>": {"phone_number_id", "access_token", "verify_token"}}'.
+    The single-app variables of earlier versions still work, but only with AGENTLOOP_WHATSAPP_TENANT
     saying which tenant they belong to: unbound, they used to authenticate every tenant's URL."""
     apps: dict[str, WhatsAppApp] = {}
     raw = _env("WHATSAPP_APPS")
@@ -278,18 +278,18 @@ def _whatsapp_apps() -> dict[str, WhatsAppApp]:
         for slug, conf in json.loads(raw).items():
             missing = [k for k in ("phone_number_id", "access_token", "verify_token") if not conf.get(k)]
             if missing:
-                raise ValueError(f"LOOPDESK_WHATSAPP_APPS[{slug!r}] is missing {', '.join(missing)}")
+                raise ValueError(f"AGENTLOOP_WHATSAPP_APPS[{slug!r}] is missing {', '.join(missing)}")
             apps[slug] = WhatsAppApp(conf["phone_number_id"], conf["access_token"], conf["verify_token"],
                                      conf.get("app_secret"))
     legacy = [_env(n) for n in ("WHATSAPP_PHONE_NUMBER_ID", "WHATSAPP_ACCESS_TOKEN", "WHATSAPP_VERIFY_TOKEN")]
     if any(legacy):
         tenant = _env("WHATSAPP_TENANT")
         if not tenant or not all(legacy):
-            raise ValueError("LOOPDESK_WHATSAPP_PHONE_NUMBER_ID / _ACCESS_TOKEN / _VERIFY_TOKEN need all three values and "
-                             "LOOPDESK_WHATSAPP_TENANT (the tenant slug they belong to); for several tenants use "
-                             "LOOPDESK_WHATSAPP_APPS")
+            raise ValueError("AGENTLOOP_WHATSAPP_PHONE_NUMBER_ID / _ACCESS_TOKEN / _VERIFY_TOKEN need all three values and "
+                             "AGENTLOOP_WHATSAPP_TENANT (the tenant slug they belong to); for several tenants use "
+                             "AGENTLOOP_WHATSAPP_APPS")
         if tenant in apps:
-            raise ValueError(f"tenant {tenant!r} is configured in both LOOPDESK_WHATSAPP_APPS and LOOPDESK_WHATSAPP_*")
+            raise ValueError(f"tenant {tenant!r} is configured in both AGENTLOOP_WHATSAPP_APPS and AGENTLOOP_WHATSAPP_*")
         apps[tenant] = WhatsAppApp(*legacy)
     phone_ids = [app.phone_number_id for app in apps.values()]
     if len(set(phone_ids)) != len(phone_ids):

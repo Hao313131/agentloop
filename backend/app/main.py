@@ -44,17 +44,17 @@ def _demo_traffic(services: Services) -> None:
 
 def check_jwt_secret(settings: Settings) -> None:
     """A known or short signing secret lets anyone forge an admin token. Refuse to start in
-    a production configuration (LOOPDESK_SEED_DEMO=0); in demo mode, warn loudly."""
+    a production configuration (AGENTLOOP_SEED_DEMO=0); in demo mode, warn loudly."""
     problem = settings.jwt_secret_problem()
     if problem is None:
         return
-    message = f"LOOPDESK_JWT_SECRET {problem}, so anyone can forge login tokens with it"
+    message = f"AGENTLOOP_JWT_SECRET {problem}, so anyone can forge login tokens with it"
     if not settings.seed_demo:
         raise RuntimeError(
-            f"{message}. A production configuration (LOOPDESK_SEED_DEMO=0) refuses to start: set a random "
+            f"{message}. A production configuration (AGENTLOOP_SEED_DEMO=0) refuses to start: set a random "
             "string of at least 32 bytes, for example python -c 'import secrets; print(secrets.token_urlsafe(48))'"
         )
-    logger.warning("%s. Starting in demo mode anyway; replace it and set LOOPDESK_SEED_DEMO=0 before deploying.",
+    logger.warning("%s. Starting in demo mode anyway; replace it and set AGENTLOOP_SEED_DEMO=0 before deploying.",
                    message)
 
 
@@ -62,7 +62,7 @@ def check_audit_key(settings: Settings) -> None:
     """Production keeps the audit signing key apart from the JWT secret (see app/audit.py)."""
     problem = settings.audit_key_problem()
     if problem and not settings.seed_demo:
-        raise RuntimeError(f"LOOPDESK_AUDIT_KEY {problem}. A production configuration (LOOPDESK_SEED_DEMO=0) "
+        raise RuntimeError(f"AGENTLOOP_AUDIT_KEY {problem}. A production configuration (AGENTLOOP_SEED_DEMO=0) "
                            "refuses to start: set a separate random string of at least 32 bytes and keep it "
                            "apart from the database")
 
@@ -99,7 +99,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 threading.Thread(target=_demo_traffic, args=(services,), name="demo-traffic", daemon=True).start()
 
     app = FastAPI(
-        title="LoopDesk API",
+        title="AgentLoop API",
         version="1.0.0",
         description="Evidence-first customer support agent platform that improves itself",
     )

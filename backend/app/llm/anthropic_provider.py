@@ -68,7 +68,7 @@ class AnthropicProvider(LLMProvider):
             try:
                 import anthropic
             except ImportError as exc:  # pragma: no cover - optional dependency
-                raise LLMError("pip install anthropic to use LOOPDESK_LLM_PROVIDER=anthropic") from exc
+                raise LLMError("pip install anthropic to use AGENTLOOP_LLM_PROVIDER=anthropic") from exc
             client = anthropic.Anthropic(api_key=api_key, timeout=timeout) if api_key else anthropic.Anthropic(timeout=timeout)
         self.client = client
         self.effort = effort

@@ -79,7 +79,7 @@ class OpenAICompatProvider(LLMProvider):
     def __init__(self, base_url: str, api_key: str, timeout: float = 60.0, stream_usage: bool = True,
                  max_retries: int = 2, transport: httpx.BaseTransport | None = None):
         if not base_url or not api_key:
-            raise LLMError("openai_compat provider needs LOOPDESK_LLM_BASE_URL (or LLM_PRESET) and LOOPDESK_LLM_API_KEY")
+            raise LLMError("openai_compat provider needs AGENTLOOP_LLM_BASE_URL (or LLM_PRESET) and AGENTLOOP_LLM_API_KEY")
         self.base_url = base_url.rstrip("/")
         self.stream_usage = stream_usage
         self.max_retries = max_retries
@@ -201,7 +201,7 @@ class OpenAICompatEmbedder(Embedder):
     def __init__(self, base_url: str, api_key: str, model: str, dim: int, timeout: float = 30.0,
                  transport: httpx.BaseTransport | None = None):
         if not (base_url and api_key and model):
-            raise LLMError("openai_compat embeddings need LOOPDESK_EMBEDDING_BASE_URL / _API_KEY / _MODEL")
+            raise LLMError("openai_compat embeddings need AGENTLOOP_EMBEDDING_BASE_URL / _API_KEY / _MODEL")
         self.base_url = base_url.rstrip("/")
         self.model = model
         self.dim = dim

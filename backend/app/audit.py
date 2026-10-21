@@ -8,7 +8,7 @@ document, publishing a patch) record it right after they succeed.
 
 Tamper evidence: each entry gets the tenant's next number (one atomic UPDATE ... RETURNING
 on the tenant row, so numbers have no gaps and no duplicates) and an HMAC over its content
-and number, keyed with LOOPDESK_AUDIT_KEY, which is not stored in the database. Someone who
+and number, keyed with AGENTLOOP_AUDIT_KEY, which is not stored in the database. Someone who
 can write to the database but does not hold the key cannot change an entry or delete one from
 the middle without ``verify`` noticing. A plain hash chain in the same database would not
 give that: whoever can edit the rows can recompute the chain. Cutting entries off the end and
@@ -56,14 +56,14 @@ ACTIONS = {
     "ticket.close": "Resolved a ticket",
 }
 MAX_DIFF_CHARS = 4000
-anchor_logger = logging.getLogger("loopdesk.audit")
+anchor_logger = logging.getLogger("agentloop.audit")
 
 
 def _key() -> bytes:
     settings = get_settings()
     if settings.audit_key:
         return settings.audit_key.encode()
-    return hashlib.sha256(b"loopdesk-audit:" + settings.jwt_secret.encode()).digest()
+    return hashlib.sha256(b"agentloop-audit:" + settings.jwt_secret.encode()).digest()
 
 
 def _mac(entry: AuditLog) -> str:

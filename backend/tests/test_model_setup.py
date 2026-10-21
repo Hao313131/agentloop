@@ -11,13 +11,13 @@ from app.config import Settings
 
 
 def test_demo_traffic_is_on_by_default_only_for_the_offline_model(monkeypatch):
-    monkeypatch.delenv("LOOPDESK_SEED_DEMO_TRAFFIC", raising=False)
-    monkeypatch.setenv("LOOPDESK_LLM_PROVIDER", "openai_compat")
+    monkeypatch.delenv("AGENTLOOP_SEED_DEMO_TRAFFIC", raising=False)
+    monkeypatch.setenv("AGENTLOOP_LLM_PROVIDER", "openai_compat")
     assert Settings.from_env().seed_demo_traffic is False
-    monkeypatch.setenv("LOOPDESK_LLM_PROVIDER", "mock")
+    monkeypatch.setenv("AGENTLOOP_LLM_PROVIDER", "mock")
     assert Settings.from_env().seed_demo_traffic is True
-    monkeypatch.setenv("LOOPDESK_LLM_PROVIDER", "openai_compat")
-    monkeypatch.setenv("LOOPDESK_SEED_DEMO_TRAFFIC", "1")
+    monkeypatch.setenv("AGENTLOOP_LLM_PROVIDER", "openai_compat")
+    monkeypatch.setenv("AGENTLOOP_SEED_DEMO_TRAFFIC", "1")
     assert Settings.from_env().seed_demo_traffic is True, "still there when asked for"
 
 

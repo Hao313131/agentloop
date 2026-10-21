@@ -38,11 +38,11 @@ def test_closing_the_tab_mid_answer_still_saves_the_answer(tmp_path):
     # uvicorn does. The mock streams slowly so the client leaves mid-answer.
     url = f"sqlite:///{tmp_path / 'stream.db'}"
     _prepare_database(url)
-    proc, base = _start_server(url, workers=1, cache_hours=0, extra_env={"LOOPDESK_MOCK_STREAM_DELAY": "0.02"})
+    proc, base = _start_server(url, workers=1, cache_hours=0, extra_env={"AGENTLOOP_MOCK_STREAM_DELAY": "0.02"})
     try:
         def login(email):
             return {"Authorization": "Bearer " + httpx.post(
-                f"{base}/api/auth/login", json={"email": email, "password": "loopdesk-demo"}).json()["token"]}
+                f"{base}/api/auth/login", json={"email": email, "password": "agentloop-demo"}).json()["token"]}
 
         emma, charlotte = login("customer@harbour.demo"), login("admin@harbour.demo")
         conversation_id = httpx.post(f"{base}/api/conversations", json={}, headers=emma).json()["id"]

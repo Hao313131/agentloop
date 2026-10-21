@@ -22,7 +22,7 @@ PROBE_FILE = Path(__file__).resolve().parents[2] / "evals" / "gate_probe.json"
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="LoopDesk relevance-gate probe")
+    parser = argparse.ArgumentParser(description="AgentLoop relevance-gate probe")
     parser.add_argument("--tenant", default="harbour")
     parser.add_argument("--report")
     args = parser.parse_args(argv)

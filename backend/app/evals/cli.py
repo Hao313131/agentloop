@@ -1,6 +1,6 @@
 """Run the regression suite from the command line (used as the CI gate).
 
-    python -m app.evals.cli --tenant harbour --gate 0.9         # against LOOPDESK_DATABASE_URL
+    python -m app.evals.cli --tenant harbour --gate 0.9         # against AGENTLOOP_DATABASE_URL
     python -m app.evals.cli --fresh --gate 0.9 --report out.json  # throwaway DB seeded from scratch
     python -m app.evals.cli --fresh --compare v1,v2               # offline A/B of two prompt versions
 """
@@ -17,7 +17,7 @@ from sqlalchemy import select
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="LoopDesk offline eval")
+    parser = argparse.ArgumentParser(description="AgentLoop offline eval")
     parser.add_argument("--tenant", default="harbour")
     parser.add_argument("--suite", default="default")
     parser.add_argument("--gate", type=float, default=0.0, help="fail (exit 1) when pass rate is below this")
@@ -49,7 +49,7 @@ def main(argv: list[str] | None = None) -> int:
         run = run_suite(db, services, tenant, args.suite, triggered_by="cli", prompt_version=args.prompt_version)
         results = db.execute(select(EvalResult).where(EvalResult.eval_run_id == run.id)).scalars().all()
 
-        print(f"\nLoopDesk eval · tenant={args.tenant} suite={args.suite} model={run.model}")
+        print(f"\nAgentLoop eval · tenant={args.tenant} suite={args.suite} model={run.model}")
         print("-" * 78)
         for r in results:
             failed = [k for k, ok in r.checks.items() if not ok]

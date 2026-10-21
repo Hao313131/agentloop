@@ -24,7 +24,7 @@ jobs:
       - name: Tests again with buffered trace writes (the PostgreSQL default)
         run: pytest -q
         env:
-          LOOPDESK_TEST_TRACE_WRITES: buffered
+          AGENTLOOP_TEST_TRACE_WRITES: buffered
       - name: Regression eval gate (offline model, synthetic data)
         run: python -m app.evals.cli --fresh --gate 0.95 --report eval-report.json
       - name: Regression eval gate, second tenant (SaaS knowledge base)
@@ -41,17 +41,17 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_USER: loopdesk
-          POSTGRES_PASSWORD: loopdesk
-          POSTGRES_DB: loopdesk_test
+          POSTGRES_USER: agentloop
+          POSTGRES_PASSWORD: agentloop
+          POSTGRES_DB: agentloop_test
         ports: ["5432:5432"]
         options: >-
-          --health-cmd "pg_isready -U loopdesk" --health-interval 5s --health-timeout 5s --health-retries 10
+          --health-cmd "pg_isready -U agentloop" --health-interval 5s --health-timeout 5s --health-retries 10
     defaults:
       run:
         working-directory: backend
     env:
-      LOOPDESK_TEST_DATABASE_URL: postgresql+psycopg://loopdesk:loopdesk@localhost:5432/loopdesk_test
+      AGENTLOOP_TEST_DATABASE_URL: postgresql+psycopg://agentloop:agentloop@localhost:5432/agentloop_test
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -124,6 +124,6 @@ jobs:
     needs: [backend, frontend, e2e]
     steps:
       - uses: actions/checkout@v4
-      - run: docker build -t loopdesk:ci .
+      - run: docker build -t agentloop:ci .
       - name: The image can resolve tenant time zones
-        run: docker run --rm loopdesk:ci python -c "from zoneinfo import ZoneInfo; print(ZoneInfo('Australia/Sydney'))"
+        run: docker run --rm agentloop:ci python -c "from zoneinfo import ZoneInfo; print(ZoneInfo('Australia/Sydney'))"

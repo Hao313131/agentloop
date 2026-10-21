@@ -10,7 +10,7 @@ Inbound: Meta posts to /api/channels/whatsapp/{tenant}/events.
   ``retry_stuck`` (run every minute by ``python -m app.ops.channel_retry``) claims it again.
 Outbound: the tenant's own business number, via the Graph API ``/{phone_number_id}/messages``.
 
-Each tenant has its own app (LOOPDESK_WHATSAPP_APPS): the receiving business number in the
+Each tenant has its own app (AGENTLOOP_WHATSAPP_APPS): the receiving business number in the
 payload decides the tenant, and replies go out from that number. When an app secret is
 configured, the ``X-Hub-Signature-256`` header is verified against the raw body, so a forged
 POST cannot inject customer messages. A tenant without an app gets dry-run replies (returned,

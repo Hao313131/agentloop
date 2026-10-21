@@ -10,7 +10,7 @@ _HTTP_STATUS = re.compile(r"\b(?:HTTP|Error code:) ?(\d{3})\b")
 HINTS = {
     "rejected": "Request rejected: 401/403 is usually a wrong key or missing permission, 404 usually a "
                 "wrong model name or base URL, 400/422 usually an unsupported parameter (for example "
-                "stream_options; set LOOPDESK_LLM_STREAM_USAGE=0). Retrying will not help",
+                "stream_options; set AGENTLOOP_LLM_STREAM_USAGE=0). Retrying will not help",
     "unavailable": "Service unavailable: 5xx, 429 (rate limit or quota exhausted) or the address is "
                    "unreachable; wait for it to recover, or check the network and the base URL",
     "timeout": "Timed out: the model answered too slowly or the network is down; check LLM_BASE_URL and "

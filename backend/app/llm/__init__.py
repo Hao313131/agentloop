@@ -20,4 +20,4 @@ def build_provider(settings: Settings) -> LLMProvider:
         from .anthropic_provider import AnthropicProvider
 
         return AnthropicProvider(settings.llm_api_key, timeout=settings.llm_timeout, effort=settings.anthropic_effort)
-    raise LLMError(f"unknown LOOPDESK_LLM_PROVIDER: {settings.llm_provider}")
+    raise LLMError(f"unknown AGENTLOOP_LLM_PROVIDER: {settings.llm_provider}")

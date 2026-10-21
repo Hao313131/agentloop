@@ -4,7 +4,7 @@
 character trigrams). It keeps the demo and CI free of model downloads. Production should
 use a semantic model through ``OpenAICompatEmbedder`` (e.g. text-embedding-3-small on
 OpenAI or Azure OpenAI, Titan Text Embeddings on Bedrock, voyage-3), configured with
-LOOPDESK_EMBEDDING_*.
+AGENTLOOP_EMBEDDING_*.
 """
 
 from __future__ import annotations

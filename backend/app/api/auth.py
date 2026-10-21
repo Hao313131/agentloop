@@ -90,7 +90,7 @@ def me(principal: Principal = Depends(get_principal)) -> dict:
 @router.get("/auth/demo-accounts")
 def demo_accounts() -> dict:
     """Shown on the login page so reviewers can try every role. Disabled when
-    LOOPDESK_SEED_DEMO=0 (i.e. in a real deployment)."""
+    AGENTLOOP_SEED_DEMO=0 (i.e. in a real deployment)."""
     if not get_settings().seed_demo:
         return {"accounts": [], "password": None}
     accounts = [

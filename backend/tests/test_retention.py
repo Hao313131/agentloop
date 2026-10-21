@@ -56,7 +56,7 @@ def test_erase_user_personal_data(client, ask, login):
     assert client.delete(f"/api/admin/users/{emma}/personal-data", headers=login("agent@harbour.demo")).status_code == 403
     erased = client.delete(f"/api/admin/users/{emma}/personal-data", headers=admin).json()["erased"]
     assert erased["messages"] == 2 and erased["runs"] == 1 and erased["approvals"] == 1
-    assert client.post("/api/auth/login", json={"email": "customer@harbour.demo", "password": "loopdesk-demo"}).status_code == 401
+    assert client.post("/api/auth/login", json={"email": "customer@harbour.demo", "password": "agentloop-demo"}).status_code == 401
     with new_session() as db:
         assert db.get(Run, run_id).input_text == REDACTED
         approval = db.query(Approval).filter(Approval.run_id == run_id).one()

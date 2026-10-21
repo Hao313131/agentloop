@@ -20,7 +20,7 @@ from .models import EvalCase, Order, Refund, Tenant, User
 from .rag.ingest import ingest_document
 from .security import hash_password
 
-DEMO_PASSWORD = "loopdesk-demo"
+DEMO_PASSWORD = "agentloop-demo"
 BASE_DIR = Path(__file__).resolve().parent.parent
 SEED_DIR = BASE_DIR / "seed_data"
 EVAL_DIR = BASE_DIR / "evals"
@@ -246,7 +246,7 @@ def main() -> None:  # pragma: no cover - CLI
     from .db import Base
     from .rag.embeddings import build_embedder
 
-    parser = argparse.ArgumentParser(description="Seed LoopDesk demo data")
+    parser = argparse.ArgumentParser(description="Seed AgentLoop demo data")
     parser.add_argument("--reset", action="store_true", help="drop all tables first")
     args = parser.parse_args()
     settings = get_settings()

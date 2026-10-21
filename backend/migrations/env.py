@@ -1,7 +1,7 @@
 """Alembic environment.
 
 URL resolution: an explicit ``sqlalchemy.url`` set by the caller (app/db.py ``migrate``)
-wins, then LOOPDESK_DATABASE_URL, then the development default. SQLite needs
+wins, then AGENTLOOP_DATABASE_URL, then the development default. SQLite needs
 ``render_as_batch`` because it cannot ALTER most column properties in place.
 """
 
@@ -16,7 +16,7 @@ from app import models  # noqa: F401  (register every table on Base.metadata)
 from app.db import Base
 
 config = context.config
-url = config.get_main_option("sqlalchemy.url") or os.environ.get("LOOPDESK_DATABASE_URL", "sqlite:///./loopdesk.db")
+url = config.get_main_option("sqlalchemy.url") or os.environ.get("AGENTLOOP_DATABASE_URL", "sqlite:///./agentloop.db")
 target_metadata = Base.metadata
 
 

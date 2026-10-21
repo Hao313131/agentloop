@@ -65,7 +65,7 @@ def _notices(db, conversation_id: int) -> list[str]:
 def test_a_run_killed_with_its_process_is_ended_and_the_customer_told(settings, client, login):
     # A real server, killed (SIGKILL) while it streams an answer: no except or finally in it runs.
     proc, base = _start_server(settings.database_url, workers=1, cache_hours=0,
-                               extra_env={"LOOPDESK_MOCK_STREAM_DELAY": "0.05"})
+                               extra_env={"AGENTLOOP_MOCK_STREAM_DELAY": "0.05"})
     try:
         token = httpx.post(f"{base}/api/auth/login",
                            json={"email": "customer@harbour.demo", "password": DEMO_PASSWORD}).json()["token"]
@@ -162,8 +162,8 @@ def test_overlapping_sweeps_end_each_run_once(client, settings, monkeypatch, exp
     with new_session() as db:
         assert [_notices(db, conversation_id) for _, conversation_id in runs] == [[INTERRUPTED_TEXT]] * 2
     roots = [s for s in exported.get_finished_spans() if s.parent is None]
-    assert sorted(s.attributes["loopdesk.run.id"] for s in roots) == sorted(run_id for run_id, _ in runs)
-    assert {(s.attributes["loopdesk.run.status"], s.status.description) for s in roots} == {("failed", "interrupted")}
+    assert sorted(s.attributes["agentloop.run.id"] for s in roots) == sorted(run_id for run_id, _ in runs)
+    assert {(s.attributes["agentloop.run.status"], s.status.description) for s in roots} == {("failed", "interrupted")}
 
 
 @pytest.mark.parametrize("situation", ["whatsapp", "handoff", "asked_again"])
