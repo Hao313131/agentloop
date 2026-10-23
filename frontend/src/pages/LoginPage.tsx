@@ -65,7 +65,7 @@ export default function LoginPage() {
             ))}
           </div>
         </div>
-        <div className="foot">Hao Xin · a personal project · every company, order and customer shown is fictional</div>
+        <div className="foot">A personal project · every company, order and customer shown is fictional</div>
       </section>
       <section className="login-panel">
         <div className="login-card">

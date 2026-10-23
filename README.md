@@ -8,7 +8,7 @@
 
 AgentLoop is an agent platform for enterprise customer service: knowledge-base Q&A (RAG), order / logistics / refund / ticket tool calls, human approval, sentence-by-sentence evidence checks, a data flywheel, and a regression test suite — all in one observable system.
 
-Author: **Hao Xin** · a personal project · all companies, orders, and customers in the repo are fictional (SYNTHETIC).
+A personal project · all companies, orders, and customers in the repo are fictional (SYNTHETIC).
 
 ![Chat test bench: the verifier flags a fabricated claim](docs/assets/chat-verifier.png)
 
@@ -31,6 +31,9 @@ The latest iterations are in [CHANGELOG.md](CHANGELOG.md): four rounds of "find 
 ## Feature overview
 
 <table>
+<tr>
+<td colspan="2"><img src="docs/assets/login.png" alt="Login page" width="720"><br><b>Login</b>: the login page lists every demo account — customer, agent, or admin — click one to enter, no password to remember (the static demo replays the same page)</td>
+</tr>
 <tr>
 <td width="50%"><img src="docs/assets/approvals.png" alt="Approval queue"><br><b>Approval queue</b>: amount, reason, and the evidence pack submitted by the agent; re-verifies the order before executing</td>
 <td width="50%"><img src="docs/assets/trace.png" alt="Trace"><br><b>Trace</b>: guardrails, routing, model, tools, approvals, verification — inputs, outputs, and timings for every step</td>
@@ -108,7 +111,7 @@ The latest iterations are in [CHANGELOG.md](CHANGELOG.md): four rounds of "find 
 flowchart LR
     subgraph Channels
       W[Web console<br/>React + TS]
-      F[WhatsApp<br/>(Cloud API)]
+      F["WhatsApp<br/>(Cloud API)"]
       M[MCP client]
     end
     W -- SSE --> API
